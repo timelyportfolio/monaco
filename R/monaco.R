@@ -18,6 +18,7 @@
 #'   the RStudio viewer pane
 #' @param elementId a HTML id for the container; this is useless for common
 #'   usage
+#' @param ... other valid monaco options not provided by function arguments
 #'
 #' @importFrom htmlwidgets createWidget
 #' @importFrom rstudioapi getSourceEditorContext isAvailable getThemeInfo
@@ -94,7 +95,8 @@
 #' }
 monaco <- function(
   contents, language = NULL, theme = NULL, tabSize = NULL, fontSize = 14,
-  header = TRUE, width = NULL, height = NULL, elementId = NULL
+  header = TRUE, width = NULL, height = NULL, elementId = NULL,
+  ...
 ) {
 
   if(!is.null(language) && !is.element(language, getMonacoLanguages())){
@@ -169,8 +171,14 @@ monaco <- function(
     fontSize = fontSize,
     header = header,
     fileName = fileName,
-    fileExtension = ext
+    fileExtension = ext,
+    options = list(...)
   )
+
+  # if no other options then change list() to NULL
+  if(length(x$options) == 0) {
+    x$options <- NULL
+  }
 
   # create widget
   if(!isRunning() && is.null(elementId)){
@@ -178,7 +186,7 @@ monaco <- function(
   }
   createWidget(
     name = "monaco",
-    x,
+    x = x,
     width = ifelse(is.null(width), "100%", width),
     height = ifelse(is.null(height), "calc(100vh - 50px)", height),
     package = "monaco",
